@@ -173,12 +173,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
-    case WM_CLOSE:
-        if (MessageBox(hWnd, L"Really quit?", L"My application", MB_OKCANCEL) == IDOK)
-        {
-            DestroyWindow(hWnd);
-        }
-        break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
