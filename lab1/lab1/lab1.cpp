@@ -3,6 +3,7 @@
 
 #include "framework.h"
 #include "lab1.h"
+#include <Windows.h>
 #include <string>
 
 #define MAX_LOADSTRING 100
@@ -169,6 +170,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             EndPaint(hWnd, &ps);
         }
+        break;
+    case WM_LBUTTONDBLCLK:
+        MessageBox(hWnd, L"Double click received!", L"Checking CS_DBLCLKS", MB_OK | MB_ICONINFORMATION);
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
