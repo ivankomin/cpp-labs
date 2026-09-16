@@ -3,7 +3,6 @@
 
 #include "framework.h"
 #include "lab1.h"
-#include <Windows.h>
 #include <string>
 
 #define MAX_LOADSTRING 100
