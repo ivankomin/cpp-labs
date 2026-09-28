@@ -1,0 +1,17 @@
+.vs/
+
+x64/
+Debug/
+Release/
+lab1/x64/
+lab1/Debug/
+lab1/Release/
+
+*.obj
+*.ilk
+*.pdb
+*.tlog
+*.log
+*.exe
+*.res
+*.idb
