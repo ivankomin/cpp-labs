@@ -1,180 +1,239 @@
-// client3.cpp : Defines the entry point for the application.
+// client3.cpp : Client 3 (Star Task) - Send arbitrary text
 //
 
-#include "framework.h"
-#include "client3.h"
+#include <windows.h>
+#include <winsock.h>
+#include <stdio.h>
+
+#pragma comment(lib, "WS2_32.lib")
 
 #define MAX_LOADSTRING 100
+#define SERV_PORT 5000
+#define WSA_NETEVENT (WM_USER + 1)
 
-// Global Variables:
-HINSTANCE hInst;                                // current instance
-WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
-WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+#define ID_CLIENT_CONNECT 8001
+#define ID_CLIENT_SEND    8002
+#define IDM_EXIT          8003
+#define IDC_TEXT_INPUT    8004
 
-// Forward declarations of functions included in this code module:
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+HINSTANCE hInst;
+WCHAR szWindowClass[MAX_LOADSTRING] = L"Client3Class";
+WCHAR szTitle[MAX_LOADSTRING] = L"Client 3 (*) - Arbitrary Text";
+HWND hwndInput = nullptr;
+HWND hwndLog = nullptr;
+
+WSADATA wsaData;
+WORD wVersionRequested = MAKEWORD(1, 1);
+SOCKET cln_socket = INVALID_SOCKET;
+SOCKADDR_IN dest_sin;
+char szHostName[128] = "127.0.0.1";
+char szBuf[1024];
+
+ATOM MyRegisterClass(HINSTANCE hInstance);
+BOOL InitInstance(HINSTANCE, int);
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPWSTR lpCmdLine,
+    _In_ int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: Place code here.
-
-    // Initialize global strings
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_CLIENT3, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
-
-    // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
+    if (!InitInstance(hInstance, nCmdShow))
     {
         return FALSE;
     }
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT3));
-
     MSG msg;
-
-    // Main message loop:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
-
-    return (int) msg.wParam;
+    return (int)msg.wParam;
 }
 
-
-
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-    WNDCLASSEXW wcex;
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CLIENT3));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_CLIENT3);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
+    WNDCLASSEXW wcex = { sizeof(WNDCLASSEX) };
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.hInstance = hInstance;
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszClassName = szWindowClass;
     return RegisterClassExW(&wcex);
 }
 
-//
-//   FUNCTION: InitInstance(HINSTANCE, int)
-//
-//   PURPOSE: Saves instance handle and creates main window
-//
-//   COMMENTS:
-//
-//        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
-//
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // Store instance handle in our global variable
+    hInst = hInstance;
+    HMENU hMenuBar = CreateMenu();
+    HMENU hMenuClient = CreatePopupMenu();
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+    AppendMenuW(hMenuClient, MF_STRING, ID_CLIENT_CONNECT, L"Connect");
+    AppendMenuW(hMenuClient, MF_STRING, ID_CLIENT_SEND, L"Send Custom Message");
+    AppendMenuW(hMenuClient, MF_SEPARATOR, 0, nullptr);
+    AppendMenuW(hMenuClient, MF_STRING, IDM_EXIT, L"Exit");
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+    AppendMenuW(hMenuBar, MF_POPUP, (UINT_PTR)hMenuClient, L"Client");
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+        1060, 100, 440, 360, nullptr, hMenuBar, hInstance, nullptr);
 
-   return TRUE;
+    if (!hWnd) return FALSE;
+
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
+    return TRUE;
 }
 
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE: Processes messages for the main window.
-//
-//  WM_COMMAND  - process the application menu
-//  WM_PAINT    - Paint the main window
-//  WM_DESTROY  - post a quit message and return
-//
-//
+BOOL SetConnection(HWND hWnd)
+{
+    if (cln_socket != INVALID_SOCKET)
+    {
+        MessageBoxA(hWnd, "Already connected.", "Info", MB_OK);
+        return TRUE;
+    }
+
+    cln_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (cln_socket == INVALID_SOCKET)
+    {
+        MessageBoxA(hWnd, "Socket error.", "Error", MB_OK | MB_ICONSTOP);
+        return FALSE;
+    }
+
+    dest_sin.sin_family = AF_INET;
+    dest_sin.sin_port = htons(SERV_PORT);
+    dest_sin.sin_addr.s_addr = inet_addr(szHostName);
+
+    if (connect(cln_socket, (PSOCKADDR)&dest_sin, sizeof(dest_sin)) == SOCKET_ERROR)
+    {
+        closesocket(cln_socket);
+        cln_socket = INVALID_SOCKET;
+        MessageBoxA(hWnd, "Connection failed.", "Error", MB_OK | MB_ICONSTOP);
+        return FALSE;
+    }
+
+    if (WSAAsyncSelect(cln_socket, hWnd, WSA_NETEVENT, FD_READ | FD_CLOSE) != 0)
+    {
+        MessageBoxA(hWnd, "WSAAsyncSelect failed.", "Error", MB_OK);
+        return FALSE;
+    }
+
+    int len = GetWindowTextLengthA(hwndLog);
+    SendMessageA(hwndLog, EM_SETSEL, (WPARAM)len, (LPARAM)len);
+    SendMessageA(hwndLog, EM_REPLACESEL, FALSE, (LPARAM)"Connected to server.\r\n");
+    return TRUE;
+}
+
+void SendMsg(HWND hWnd)
+{
+    if (cln_socket == INVALID_SOCKET)
+    {
+        MessageBoxA(hWnd, "Connect to server first.", "Warning", MB_OK);
+        return;
+    }
+
+    //Send arbitrary user input   
+    char userText[512];
+    GetWindowTextA(hwndInput, userText, sizeof(userText));
+
+    if (strlen(userText) == 0)
+    {
+        strcpy_s(userText, sizeof(userText), "Default text payload from Client 3.");
+    }
+
+    sprintf_s(szBuf, "Custom User Message: %s\r\n", userText);
+
+    if (send(cln_socket, szBuf, (int)strlen(szBuf), 0) != SOCKET_ERROR)
+    {
+        char displayMsg[1024];
+        sprintf_s(displayMsg, "Sent to server: %s", szBuf);
+        int len = GetWindowTextLengthA(hwndLog);
+        SendMessageA(hwndLog, EM_SETSEL, (WPARAM)len, (LPARAM)len);
+        SendMessageA(hwndLog, EM_REPLACESEL, FALSE, (LPARAM)displayMsg);
+    }
+    else
+    {
+        int len = GetWindowTextLengthA(hwndLog);
+        SendMessageA(hwndLog, EM_SETSEL, (WPARAM)len, (LPARAM)len);
+        SendMessageA(hwndLog, EM_REPLACESEL, FALSE, (LPARAM)"Send failed.\r\n");
+    }
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-    case WM_COMMAND:
+    case WM_CREATE:
+    {
+        CreateWindowW(L"STATIC", L"Enter custom text to send to server:",
+            WS_CHILD | WS_VISIBLE, 10, 10, 400, 20, hWnd, nullptr, hInst, nullptr);
+
+        hwndInput = CreateWindowW(L"EDIT", L"Type custom test message here...",
+            WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+            10, 35, 400, 25, hWnd, (HMENU)IDC_TEXT_INPUT, hInst, nullptr);
+
+        hwndLog = CreateWindowW(L"EDIT", nullptr,
+            WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
+            10, 70, 400, 220, hWnd, nullptr, hInst, nullptr);
+
+        if (WSAStartup(wVersionRequested, &wsaData) != 0)
         {
-            int wmId = LOWORD(wParam);
-            // Parse the menu selections:
-            switch (wmId)
+            MessageBoxA(hWnd, "WSAStartup failed.", "Error", MB_OK | MB_ICONSTOP);
+            return FALSE;
+        }
+        break;
+    }
+    case WM_COMMAND:
+    {
+        int wmId = LOWORD(wParam);
+        switch (wmId)
+        {
+        case ID_CLIENT_CONNECT: SetConnection(hWnd); break;
+        case ID_CLIENT_SEND:    SendMsg(hWnd); break;
+        case IDM_EXIT:          DestroyWindow(hWnd); break;
+        default:                return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
+    }
+    case WSA_NETEVENT:
+    {
+        if (WSAGETSELECTEVENT(lParam) == FD_READ)
+        {
+            char tempBuf[512];
+            int rc = recv(cln_socket, tempBuf, sizeof(tempBuf) - 1, 0);
+            if (rc > 0)
             {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
+                tempBuf[rc] = '\0';
+                sprintf_s(szBuf, "\r\nServer: %s\r\n", tempBuf);
+                int len = GetWindowTextLengthA(hwndLog);
+                SendMessageA(hwndLog, EM_SETSEL, (WPARAM)len, (LPARAM)len);
+                SendMessageA(hwndLog, EM_REPLACESEL, FALSE, (LPARAM)szBuf);
             }
         }
-        break;
-    case WM_PAINT:
+        if (WSAGETSELECTEVENT(lParam) == FD_CLOSE)
         {
-            PAINTSTRUCT ps;
-            BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code here...
-            EndPaint(hWnd, &ps);
+            closesocket(cln_socket);
+            cln_socket = INVALID_SOCKET;
+            MessageBoxA(hWnd, "Server closed the connection.", "Disconnected", MB_OK);
         }
         break;
+    }
     case WM_DESTROY:
+        if (cln_socket != INVALID_SOCKET)
+        {
+            closesocket(cln_socket);
+        }
+        WSACleanup();
         PostQuitMessage(0);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
-}
-
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    UNREFERENCED_PARAMETER(lParam);
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
-
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-        {
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
-        }
-        break;
-    }
-    return (INT_PTR)FALSE;
 }
