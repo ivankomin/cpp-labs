@@ -1,7 +1,3 @@
-// client3.cpp : Mailslot Client 3 (Laboratory Work #5)
-// Task with Asterisk (*): Sending mathematical computation results
-// (e.g. rectangle area) with arbitrary input parameters to the server.
-
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +15,7 @@
 
 HINSTANCE hInst;
 const wchar_t szWindowClass[] = L"MailslotClient3Class";
-const wchar_t szTitle[] = L"Client 3 - Task with Asterisk (*)";
+const wchar_t szTitle[] = L"Client 3";
 const wchar_t MailslotName[] = L"\\\\.\\mailslot\\lab5_mailslot";
 
 HWND hwndMain = nullptr;

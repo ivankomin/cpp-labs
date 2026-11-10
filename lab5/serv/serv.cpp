@@ -1,6 +1,3 @@
-// serv.cpp : Mailslot Server (Laboratory Work #5)
-// Variant 9
-
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +13,7 @@
 
 HINSTANCE hInst;
 const wchar_t szWindowClass[] = L"MailslotServerClass";
-const wchar_t szTitle[] = L"Server - Mailslot (Variant 9)";
+const wchar_t szTitle[] = L"Server - Mailslot";
 const wchar_t MailslotName[] = L"\\\\.\\mailslot\\lab5_mailslot";
 
 HWND hwndMain = nullptr;
@@ -123,8 +120,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         GetClientRect(hWnd, &rc);
         hwndEdit = CreateWindowW(L"EDIT",
             L"Laboratory Work #5 - Mailslot Server.\r\n"
-            L"Variant 9: Client-Server communication via Mailslot.\r\n"
-            L"--------------------------------------------\r\n"
             L"Status: Ready to start.\r\n"
             L"Select menu 'MailSlot' -> 'Start Server (Create)' to begin.\r\n\r\n",
             WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,

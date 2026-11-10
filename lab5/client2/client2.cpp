@@ -12,7 +12,7 @@
 
 HINSTANCE hInst;
 const wchar_t szWindowClass[] = L"MailslotClient2Class";
-const wchar_t szTitle[] = L"Client 2 - Variant 9";
+const wchar_t szTitle[] = L"Client 2";
 const wchar_t MailslotName[] = L"\\\\.\\mailslot\\lab5_mailslot";
 
 HWND hwndMain = nullptr;
@@ -101,7 +101,7 @@ void GenerateMetrics(HWND hWnd)
 
     char msgBuf[2048];
     sprintf_s(msgBuf,
-        "Client #2 Data (Variant 9):\r\n"
+        "Client #2 Data:\r\n"
         " - Toolbar 3D border width (SM_CXEDGE) = %d px\r\n"
         " - Status bar 3D border height (SM_CYEDGE) = %d px\r\n"
         " - Palette colors (GetDeviceCaps NUMCOLORS) = %d (palette)\r\n"

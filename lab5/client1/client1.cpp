@@ -1,6 +1,3 @@
-// client1.cpp : Mailslot Client 1 (Laboratory Work #5)
-// Variant 9: proxy status (SM_NETDRIVE); system uptime (SM_CXSCREEN); screen width (GetDeviceCaps(hdc, HORZRES))
-
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +9,7 @@
 
 HINSTANCE hInst;
 const wchar_t szWindowClass[] = L"MailslotClient1Class";
-const wchar_t szTitle[] = L"Client 1 - Variant 9";
+const wchar_t szTitle[] = L"Client 1";
 const wchar_t MailslotName[] = L"\\\\.\\mailslot\\lab5_mailslot";
 
 HWND hwndMain = nullptr;
@@ -106,7 +103,7 @@ void GenerateMetrics(HWND hWnd)
 
     char msgBuf[2048];
     sprintf_s(msgBuf,
-        "Client #1 Data (Variant 9):\r\n"
+        "Client #1 Data:\r\n"
         " - Proxy / Network status (SM_NETDRIVE / SM_NETWORK) = %s (0x%X)\r\n"
         " - System Uptime = %02llu:%02llu:%02llu (%llu sec)\r\n"
         " - Screen Width (SM_CXSCREEN) = %d px\r\n"
