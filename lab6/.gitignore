@@ -1,0 +1,61 @@
+# =========================================================
+# Visual Studio Build Output & Intermediate Files
+# =========================================================
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+build/
+
+# Project-specific intermediate directories
+*/[Dd]ebug/
+*/[Rr]elease/
+*/x64/
+*/x86/
+
+# Intermediate compiler and linker artifacts
+*.obj
+*.o
+*.tlog
+*.log
+*.ilk
+*.pdb
+*.idb
+*.pch
+*.res
+*.resw
+*.ipch
+*.exp
+*.lib
+*.a
+*.exe
+*.dll
+
+# =========================================================
+# Visual Studio User Settings, Cache & Telemetry
+# =========================================================
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+*.VC.VC.opendb
+
+# =========================================================
+# OS-generated files
+# =========================================================
+.DS_Store
+Thumbs.db
+desktop.ini

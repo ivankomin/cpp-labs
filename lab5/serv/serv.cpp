@@ -97,7 +97,7 @@ void AppendLogA(HWND hEdit, const char* text)
     int len = GetWindowTextLengthA(hEdit);
     SendMessageA(hEdit, EM_SETSEL, (WPARAM)len, (LPARAM)len);
     SendMessageA(hEdit, EM_REPLACESEL, FALSE, (LPARAM)text);
-    SendMessageA(hEdit, EM_REPLACESEL, FALSE, (LPARAM)"\r\n--------------------------------------------\r\n");
+    SendMessageA(hEdit, EM_REPLACESEL, FALSE, (LPARAM)"\r\n\r\n");
     SendMessageA(hEdit, WM_VSCROLL, SB_BOTTOM, 0);
 }
 
@@ -188,7 +188,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         case ID_LOG_CLEAR:
         {
-            SetWindowTextW(hwndEdit, L"Server log cleared.\r\n--------------------------------------------\r\n");
+            SetWindowTextW(hwndEdit, L"Server log cleared.\r\n\r\n");
             break;
         }
         case IDM_ABOUT:
@@ -196,7 +196,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             MessageBoxW(hWnd,
                 L"Laboratory Work #5\r\n"
                 L"Topic: Client-Server Architecture. Mailslot Communication\r\n"
-                L"Variant 9 (+ Task with Asterisk *)\r\n\r\n"
                 L"Developed in Microsoft Visual Studio",
                 L"About", MB_OK | MB_ICONINFORMATION);
             break;

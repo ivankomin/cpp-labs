@@ -182,7 +182,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    // Spawn compute threads for Variant 9
+    // Spawn compute threads
     ghWorkerThreads[0] = CreateThread(NULL, 0, FactorialThreadProc, NULL, 0, NULL);
     ghWorkerThreads[1] = CreateThread(NULL, 0, TaylorSinThreadProc, NULL, 0, NULL);
 
